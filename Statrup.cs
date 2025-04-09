@@ -1,8 +1,10 @@
-﻿using MarketplaceTest.Data;
+﻿using Marketplace.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Text;
 
-namespace Store;
+namespace Marketplace;
 
 public class Startup
 {
@@ -15,7 +17,7 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddDbContext<StoreContext>(options =>
+        services.AddDbContext<MarketplaceDbContext>(options =>
                options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
 
         services.AddControllersWithViews();
@@ -61,14 +63,12 @@ public class Startup
 
         app.UseRouting();
 
-        app.UseAuthorization();
-
         app.UseSwagger();
 
         app.UseSwaggerUI(c =>
         {
             c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-            c.RoutePrefix = string.Empty; // Set Swagger UI at the app's root
+            c.RoutePrefix = string.Empty; 
         });
 
         app.UseEndpoints(endpoints =>
@@ -78,4 +78,13 @@ public class Startup
                 pattern: "{controller=Home}/{action=Index}/{id?}");
         });
     }
+}
+
+public class AuthOptions
+{
+    public const string ISSUER = "MyAuthServer"; // издатель токена
+    public const string AUDIENCE = "MyAuthClient"; // потребитель токена
+    const string KEY = "mysupersecret_secretsecretsecretkey!123";   // ключ для шифрации
+    public static SymmetricSecurityKey GetSymmetricSecurityKey() =>
+        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(KEY));
 }
