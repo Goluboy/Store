@@ -3714,11 +3714,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\SystemX\\source\\repos\\Store\\Store.csproj",
+      "projectUniqueName": "C:\\Users\\SystemX\\Store\\Store.csproj",
       "projectName": "Store",
-      "projectPath": "C:\\Users\\SystemX\\source\\repos\\Store\\Store.csproj",
+      "projectPath": "C:\\Users\\SystemX\\Store\\Store.csproj",
       "packagesPath": "C:\\Users\\SystemX\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\SystemX\\source\\repos\\Store\\obj\\",
+      "outputPath": "C:\\Users\\SystemX\\Store\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

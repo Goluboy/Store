@@ -6,7 +6,7 @@ namespace Marketplace.Models
     public class Good
     {
         [Key]
-        public int GoodId { get; set; }
+        public Guid GoodId { get; set; }
         [Required]
         public string Name { get; set; }
         [Required]

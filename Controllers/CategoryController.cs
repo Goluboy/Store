@@ -1,11 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Marketplace.Data;
-using Marketplace.DTOs;
 using Marketplace.Models;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Store.Contracts.DTOs;
+using Store.Contracts.Requests;
 
 namespace Marketplace.Controllers
 {
@@ -21,7 +19,7 @@ namespace Marketplace.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<GoodCategoryDTO>>> GetCategories()
+        public async Task<ActionResult<IEnumerable<GoodCategoryDTO>>> GetCategories(CancellationToken cancellationToken)
         {
             return await _context.Categories
                 .Select(c => new GoodCategoryDTO
@@ -31,13 +29,13 @@ namespace Marketplace.Controllers
                     Description = c.Description,
                     ParentId = c.ParentId
                 })
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<GoodCategoryDTO>> GetCategory(int id)
+        public async Task<ActionResult<GoodCategoryDTO>> GetCategory(int id, CancellationToken cancellationToken)
         {
-            var category = await _context.Categories.FindAsync(id);
+            var category = await _context.Categories.FindAsync(id, cancellationToken);
 
             if (category == null)
             {
@@ -54,27 +52,27 @@ namespace Marketplace.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<GoodCategoryDTO>> PostCategory(GoodCategoryDTO categoryDTO)
+        public async Task<ActionResult<GoodCategoryDTO>> PostCategory(GoodCategoryRequest categoryRequest, CancellationToken cancellationToken)
         {
             var category = new GoodCategory
             {
-                Name = categoryDTO.Name,
-                Description = categoryDTO.Description,
-                ParentId = categoryDTO.ParentId
+                Name = categoryRequest.Name,
+                Description = categoryRequest.Description,
+                ParentId = categoryRequest.ParentId
             };
 
-            _context.Categories.Add(category);
+            await _context.Categories.AddAsync(category, cancellationToken);
             await _context.SaveChangesAsync();
 
-            categoryDTO.CategoryId = category.CategoryId;
+            categoryRequest.CategoryId = category.CategoryId;
 
-            return CreatedAtAction(nameof(GetCategory), new { id = category.CategoryId }, categoryDTO);
+            return CreatedAtAction(nameof(GetCategory), new { id = category.CategoryId }, categoryRequest);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCategory(int id, GoodCategoryDTO categoryDTO)
+        public async Task<IActionResult> PutCategory(Guid id, GoodCategoryRequest categoryRequest, CancellationToken cancellationToken)
         {
-            if (id != categoryDTO.CategoryId)
+            if (id != categoryRequest.CategoryId)
             {
                 return BadRequest();
             }
@@ -85,18 +83,18 @@ namespace Marketplace.Controllers
                 return NotFound();
             }
 
-            category.Name = categoryDTO.Name;
-            category.Description = categoryDTO.Description;
-            category.ParentId = categoryDTO.ParentId;
+            category.Name = categoryRequest.Name;
+            category.Description = categoryRequest.Description;
+            category.ParentId = categoryRequest.ParentId;
 
             _context.Entry(category).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCategory(int id)
+        public async Task<IActionResult> DeleteCategory(Guid id, CancellationToken cancellationToken)
         {
             var category = await _context.Categories.FindAsync(id);
             if (category == null)
@@ -105,7 +103,7 @@ namespace Marketplace.Controllers
             }
 
             _context.Categories.Remove(category);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
             return NoContent();
         }

@@ -1,6 +1,6 @@
-﻿namespace MarketplaceTest.Dtos
+﻿namespace Store.Contracts.Requests
 {
-    public class LoginDto
+    public record LoginDto
     {
         public string Email { get; set; }
         public string Password { get; set; }

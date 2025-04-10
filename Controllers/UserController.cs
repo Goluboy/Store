@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Marketplace.DTOs;
 using Marketplace.Models;
 using Microsoft.EntityFrameworkCore;
 using Marketplace.Data;
+using Store.Contracts.DTOs;
+using Store.Contracts.Requests;
 
 namespace Marketplace.Controllers
 {
@@ -18,7 +19,7 @@ namespace Marketplace.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<UserDTO>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<UserDTO>>> GetUsers(CancellationToken cancellationToken)
         {
             return await _context.Users
                 .Select(u => new UserDTO
@@ -27,13 +28,13 @@ namespace Marketplace.Controllers
                     Name = u.Name,
                     Email = u.Email
                 })
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<UserDTO>> GetUser(int id)
+        public async Task<ActionResult<UserDTO>> GetUser(Guid id, CancellationToken cancellationToken)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await _context.Users.FindAsync(id, cancellationToken);
 
             if (user == null)
             {
@@ -49,56 +50,56 @@ namespace Marketplace.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<UserDTO>> PostUser(UserDTO userDTO)
+        public async Task<ActionResult<UserDTO>> PostUser(UserRequest userRequest, CancellationToken cancellationToken)
         {
             var user = new User
             {
-                Name = userDTO.Name,
-                Email = userDTO.Email
+                Name = userRequest.Name,
+                Email = userRequest.Email
             };
 
             _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
-            userDTO.UserId = user.UserId;
+            userRequest.UserId = user.UserId;
 
-            return CreatedAtAction(nameof(GetUser), new { id = user.UserId }, userDTO);
+            return CreatedAtAction(nameof(GetUser), new { id = user.UserId }, userRequest);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, UserDTO userDTO)
+        public async Task<IActionResult> PutUser(Guid id, UserRequest userRequest, CancellationToken cancellationToken)
         {
-            if (id != userDTO.UserId)
+            if (id != userRequest.UserId)
             {
                 return BadRequest();
             }
 
-            var user = await _context.Users.FindAsync(id);
+            var user = await _context.Users.FindAsync(id, cancellationToken);
             if (user == null)
             {
                 return NotFound();
             }
 
-            user.Name = userDTO.Name;
-            user.Email = userDTO.Email;
+            user.Name = userRequest.Name;
+            user.Email = userRequest.Email;
 
             _context.Entry(user).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
+        public async Task<IActionResult> DeleteUser(int id, CancellationToken cancellationToken)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await _context.Users.FindAsync(id, cancellationToken);
             if (user == null)
             {
                 return NotFound();
             }
 
             _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
             return NoContent();
         }

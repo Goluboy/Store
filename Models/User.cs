@@ -5,7 +5,7 @@ namespace Marketplace.Models
     public class User
     {
         [Key]
-        public int UserId { get; set; }
+        public Guid UserId { get; set; }
         [Required]
         public string Name { get; set; }
         [Required]
